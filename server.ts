@@ -63,13 +63,15 @@ app.post('/api/generate-questions', async (req, res) => {
   try {
     const {
       topic = 'Tổng hợp Lịch sử THPT',
+      keyword = '',
+      essayStyle = 'phan-tich', // 'phan-tich' | 'so-sanh' | 'danh-gia' | 'bai-hoc' | 'chung-minh' | 'tong-hop'
       grade = '12',
       questionType = 'multiple_choice', // 'multiple_choice' | 'true_false' | 'essay'
       difficulty = 'medium',
       count = 5,
     } = req.body;
 
-    const requestedCount = Math.min(Math.max(Number(count) || 3, 1), 10);
+    const requestedCount = Math.min(Math.max(Number(count) || 1, 1), 10);
 
     let prompt = '';
     let responseSchema: any = null;
@@ -158,15 +160,30 @@ Mỗi câu gồm:
         required: ['questions'],
       };
     } else {
-      // Essay questions
-      prompt = `Bạn là giáo viên Lịch sử THPT luyện thi học sinh giỏi và tốt nghiệp THPT.
-Hãy tạo ${requestedCount} câu hỏi Tự luận (câu hỏi phân tích, đánh giá, so sánh hoặc rút ra bài học lịch sử) cho chủ đề: "${topic}", Lớp ${grade}, độ khó: "${difficulty}".
-Mỗi câu gồm:
-- question: nội dung câu hỏi tự luận kích thích tư duy (ví dụ: So sánh, phân tích nguyên nhân, đánh giá vai trò, bài học kinh nghiệm).
-- suggestedAnswer: bài giải mẫu chi tiết, mạch lạc, chuẩn văn phong sử học.
-- keyPoints: danh sách 4-6 luận điểm/ý cốt lõi bắt buộc phải có để đạt điểm tối đa.
-- rubric: thang điểm hướng dẫn chấm (tổng điểm 10).
-- guideNote: hướng dẫn phương pháp làm bài cho học sinh.`;
+      // Essay questions - Persona: Giáo viên Lịch sử THPT giàu kinh nghiệm
+      const styleDesc =
+        essayStyle === 'so-sanh'
+          ? 'So sánh điểm giống và khác nhau giữa hai sự kiện, chiến lược hoặc giai đoạn lịch sử'
+          : essayStyle === 'danh-gia'
+          ? 'Đánh giá ý nghĩa bước ngoặt, vai trò lịch sử của sự kiện hoặc nhân vật lịch sử'
+          : essayStyle === 'bai-hoc'
+          ? 'Phân tích nguyên nhân thắng lợi và rút ra bài học kinh nghiệm sâu sắc cho thực tiễn hiện nay'
+          : essayStyle === 'chung-minh'
+          ? 'Chứng minh hoặc bình luận một nhận định, luận điểm lịch sử kinh điển'
+          : 'Phân tích bối cảnh, diễn biến cốt lõi, nguyên nhân và tác động lịch sử';
+
+      prompt = `HÃY ĐÓNG VAI LÀ MỘT GIÁO VIÊN LỊCH SỬ THPT GIÀU KINH NGHIỆM SƯ PHẠM VÀ LUYỆN THI HỌC SINH GIỎI / THI TỐT NGHIỆP THPT (CHƯƠNG TRÌNH GDPT 2018).
+Nhiệm vụ của bạn: Hãy biên soạn ${requestedCount} câu hỏi TỰ LUẬN CHẤT LƯỢNG CAO thuộc phạm vi kiến thức Lịch sử THPT.
+Chủ đề hoặc từ khóa được cung cấp: "${topic}" ${keyword ? `(Từ khóa trọng tâm: "${keyword}")` : ''}.
+Dạng câu hỏi yêu cầu: "${styleDesc}" (Phong cách: ${essayStyle}).
+Lớp: ${grade}, Mức độ nhận thức: "${difficulty}".
+
+YÊU CẦU BẮT BUỘC ĐỐI VỚI MỖI CÂU HỎI TỰ LUẬN ĐƯỢC BIÊN SOẠN:
+1. question: Câu hỏi tự luận chuẩn mực, sâu sắc, giàu tính sư phạm, kích thích tư duy độc lập (tránh câu hỏi học vẹt).
+2. keyPoints: Danh sách 4 - 6 luận điểm then chốt (mỗi luận điểm là 1 gạch đầu dòng rõ ràng, chuẩn xác về mốc thời gian, bản chất sự kiện).
+3. rubric: Hướng dẫn chấm điểm chi tiết (Biểu điểm phân chia theo thang 10.0 điểm, ví dụ: Đặt vấn đề [1.0đ], Luận điểm chính 1 [2.5đ], Luận điểm chính 2 [2.5đ], Luận điểm 3 / Ý nghĩa [2.5đ], Kỹ năng lập luận logic và liên hệ thực tiễn [1.5đ]).
+4. guideNote: Lời dặn dò phương pháp làm bài của giáo viên (cách đọc đề, nhận diện từ khóa lệnh, cấu trúc bài viết và lỗi học sinh thường mắc phải).
+5. suggestedAnswer: Bài giải mẫu hoàn chỉnh, phân chia các đề mục 1, 2, 3 khoa học, hành văn đĩnh đạc, lập luận chặt chẽ, dẫn chứng lịch sử phong phú, chuẩn SGK.`;
 
       responseSchema = {
         type: Type.OBJECT,
@@ -188,7 +205,7 @@ Mỗi câu gồm:
                 guideNote: { type: Type.STRING },
                 topic: { type: Type.STRING },
               },
-              required: ['question', 'suggestedAnswer', 'keyPoints'],
+              required: ['question', 'suggestedAnswer', 'keyPoints', 'rubric', 'guideNote'],
             },
           },
         },
