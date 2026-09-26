@@ -932,4 +932,10 @@ async function startServer() {
   });
 }
 
-startServer();
+// Only start standalone server if not running inside a serverless handler (like Vercel)
+if (!process.env.VERCEL) {
+  startServer();
+}
+
+export default app;
+
