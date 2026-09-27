@@ -306,17 +306,25 @@ export default function App() {
             ) : (
               <div>
                 {/* Back to selector bar */}
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-5 p-2 sm:p-2.5 rounded-2xl bg-gradient-to-r from-amber-50/80 via-orange-50/60 to-red-50/80 border border-amber-200/90 shadow-xs">
                   <button
                     onClick={() => setCurrentQuizType(null)}
-                    className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-stone-600 hover:text-stone-900 transition-colors"
+                    className="group inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-gradient-to-r from-red-700 via-red-600 to-amber-600 hover:from-red-800 hover:via-red-700 hover:to-amber-700 text-white font-black text-xs sm:text-sm shadow-md shadow-red-900/30 hover:shadow-lg hover:shadow-red-900/40 active:scale-95 transition-all border border-amber-300/40 cursor-pointer"
                   >
-                    <ArrowLeft className="w-4 h-4" />
-                    <span>Chọn chuyên đề khác</span>
+                    <ArrowLeft className="w-4 h-4 text-yellow-300 stroke-[3] group-hover:-translate-x-1 transition-transform" />
+                    <span className="tracking-wide">Chọn chuyên đề khác</span>
                   </button>
 
-                  <div className="text-xs text-stone-500">
-                    Chế độ: <strong>{currentQuizType === 'multiple_choice' ? 'Trắc nghiệm 4 chọn' : 'Đúng/Sai'}</strong>
+                  <div className="inline-flex items-center gap-2 text-xs font-bold px-3.5 py-1.5 sm:py-2 rounded-xl bg-white/95 border border-amber-300/80 text-amber-950 shadow-2xs">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>
+                      Chế độ:{' '}
+                      <strong className="text-red-900 font-black">
+                        {currentQuizType === 'multiple_choice'
+                          ? 'Trắc nghiệm 4 lựa chọn'
+                          : 'Trắc nghiệm Đúng / Sai'}
+                      </strong>
+                    </span>
                   </div>
                 </div>
 
